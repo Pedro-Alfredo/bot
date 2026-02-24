@@ -11,7 +11,7 @@ import yt_dlp
 
 # ================== CONFIGURAÇÃO ==================
 TOKEN = os.getenv("TOKEN")  # variável de ambiente no Railway
-ADMIN_ID = 987654321         # teu ID do Telegram
+ADMIN_ID = 856614967         # teu ID do Telegram
 
 # ================== VIP USERS ==================
 def load_vips():
