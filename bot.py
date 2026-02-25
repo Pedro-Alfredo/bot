@@ -7,13 +7,15 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 import yt_dlp
 
-# ================== CONFIGURAÇÃO ==================
+# ================== CONFIG ==================
 TOKEN = os.getenv("TOKEN")
 
-ADMIN_ID =8195479025
-OWNERS = [856614967, 876405044, 834195579]
+# ⚠️ COLOCA AQUI O TEU ID DO TELEGRAM (@userinfobot)
+ADMIN_ID = 8195479025
 
-# ================== VIP USERS ==================
+OWNERS = [ADMIN_ID]
+
+# ================== VIP ==================
 def load_vips():
     try:
         with open("vip.pkl", "rb") as f:
@@ -42,15 +44,8 @@ def save_codigos(c):
 CODIGOS = load_codigos()
 USED_CODES = []
 
-# ================== DOWNLOADS E LOG ==================
+# ================== DOWNLOAD ==================
 user_downloads = {}
-logs = {}
-
-def log_user(user_id):
-    today = str(date.today())
-    if today not in logs:
-        logs[today] = set()
-    logs[today].add(user_id)
 
 def is_vip(user_id):
     if user_id in OWNERS:
@@ -66,8 +61,11 @@ def is_vip(user_id):
 # ================== COMANDOS ==================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
+    if user_id in OWNERS:
+        await update.message.reply_text("👑 És DONO - Acesso ilimitado.")
+        return
     if is_vip(user_id):
-        await update.message.reply_text("🎉 És VIP!\nDownloads ilimitados ativos.")
+        await update.message.reply_text("🎉 És VIP! Downloads ilimitados.")
     else:
         today = str(date.today())
         if user_id not in user_downloads:
@@ -89,35 +87,19 @@ async def vip(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "M-Pesa: 856614967\n"
         "mKesh: 834195579\n"
         "e-Mola: 876405044\n\n"
-        "Depois usa o código recebido via /ativar CODIGO"
+        "Depois usa o código via /ativar CODIGO"
     )
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
+    if user_id in OWNERS:
+        await update.message.reply_text("👑 És DONO - VIP infinito.")
+        return
     if is_vip(user_id):
-        if user_id in VIP_USERS:
-            exp = VIP_USERS[user_id]
-            await update.message.reply_text(f"💎 VIP ativo até: {exp}")
-        else:
-            await update.message.reply_text("👑 És DONO - Acesso ilimitado.")
+        exp = VIP_USERS[user_id]
+        await update.message.reply_text(f"💎 VIP ativo até: {exp}")
     else:
         await update.message.reply_text("❌ Não és VIP.\nUsa /vip")
-
-async def logs_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.from_user.id != ADMIN_ID:
-        return
-    today = str(date.today())
-    total = len(logs.get(today, []))
-    await update.message.reply_text(f"📊 Utilizadores hoje: {total}")
-
-async def codigos(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.from_user.id != ADMIN_ID:
-        return
-    total = len(CODIGOS)
-    usados = len(USED_CODES)
-    await update.message.reply_text(
-        f"📦 Códigos disponíveis: {total}\n✅ Códigos usados: {usados}"
-    )
 
 async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.from_user.id != ADMIN_ID:
@@ -134,7 +116,7 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE):
         novos.append(codigo)
     save_codigos(CODIGOS)
     lista = "\n".join(novos)
-    await update.message.reply_text(f"🎟️ {quantidade} códigos criados:\n\n{lista}")
+    await update.message.reply_text(f"Códigos criados:\n\n{lista}")
 
 async def ativar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
@@ -146,32 +128,28 @@ async def ativar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if codigo in CODIGOS:
         VIP_USERS[user_id] = date.today() + timedelta(days=30)
         CODIGOS.remove(codigo)
-        USED_CODES.append(codigo)
         save_codigos(CODIGOS)
         save_vips(VIP_USERS)
         await update.message.reply_text("🎉 VIP ativado por 30 dias!")
     else:
-        await update.message.reply_text("❌ Código inválido ou usado.")
+        await update.message.reply_text("❌ Código inválido.")
 
-# ================== DOWNLOAD ==================
 async def download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    log_user(user_id)
-    today = str(date.today())
-    if user_id not in user_downloads:
-        user_downloads[user_id] = {"date": today, "count": 0}
-    if user_downloads[user_id]["date"] != today:
-        user_downloads[user_id] = {"date": today, "count": 0}
-    if user_id not in OWNERS and not is_vip(user_id) and user_downloads[user_id]["count"] >= 3:
-        await update.message.reply_text("Limite grátis atingido.\n💎 Paga 150MT para VIP.")
-        return
+    if user_id in OWNERS:
+        pass
+    else:
+        today = str(date.today())
+        if user_id not in user_downloads:
+            user_downloads[user_id] = {"date": today, "count": 0}
+        if user_downloads[user_id]["date"] != today:
+            user_downloads[user_id] = {"date": today, "count": 0}
+        if not is_vip(user_id) and user_downloads[user_id]["count"] >= 3:
+            await update.message.reply_text("Limite grátis atingido.\n💎 Paga 150MT para VIP.")
+            return
     url = update.message.text
     filename = "video.mp4"
-    ydl_opts = {
-        'outtmpl': filename,
-        'format': 'best',
-        'quiet': True,
-    }
+    ydl_opts = {'outtmpl': filename,'format': 'best','quiet': True}
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
@@ -184,15 +162,12 @@ async def download(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if os.path.exists(filename):
             os.remove(filename)
 
-# ================== INICIALIZAÇÃO ==================
+# ================== RUN ==================
 app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("vip", vip))
 app.add_handler(CommandHandler("status", status))
-app.add_handler(CommandHandler("logs", logs_cmd))
-app.add_handler(CommandHandler("codigos", codigos))
 app.add_handler(CommandHandler("gerar", gerar))
 app.add_handler(CommandHandler("ativar", ativar))
 app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), download))
-
 app.run_polling()
