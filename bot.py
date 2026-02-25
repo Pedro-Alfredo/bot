@@ -10,7 +10,7 @@ import yt_dlp
 # ================== CONFIGURAÇÃO ==================
 TOKEN = os.getenv("TOKEN")
 
-ADMIN_ID = 856614967
+ADMIN_ID = 8195479025:AAEW6n8Ba_RQxRbfIPJaEYMY1wbF2WSyiEo
 OWNERS = [856614967, 876405044, 834195579]
 
 # ================== VIP USERS ==================
