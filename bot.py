@@ -11,9 +11,9 @@ import yt_dlp
 TOKEN = os.getenv("TOKEN")
 
 # ⚠️ COLOCA AQUI O TEU ID DO TELEGRAM (@userinfobot)
-ADMIN_ID = 8195479025
+ADMIN_ID =8195479025
 
-OWNERS = [ADMIN_ID]
+OWNERS = [8195479025:AAEW6n8Ba_RQxRbfIPJaEYMY1wbF2WSyiEo]
 
 # ================== VIP ==================
 def load_vips():
