@@ -13,7 +13,7 @@ TOKEN = os.getenv("TOKEN")
 # ⚠️ COLOCA AQUI O TEU ID DO TELEGRAM (@userinfobot)
 ADMIN_ID =8195479025
 
-OWNERS = [8195479025:AAEW6n8Ba_RQxRbfIPJaEYMY1wbF2WSyiEo]
+OWNERS = [8195479025]
 
 # ================== VIP ==================
 def load_vips():
