@@ -8,12 +8,10 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 import yt_dlp
 
 # ================== CONFIG ==================
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("BOT_TOKEN")
 
-# ⚠️ COLOCA AQUI O TEU ID DO TELEGRAM (@userinfobot)
-ADMIN_ID =6180069267
-
-OWNER_ID = [6180069267, 856614967, 876405044, 834195579]
+ADMIN_ID = 6180069267
+OWNERS = [6180069267]
 
 # ================== VIP ==================
 def load_vips():
@@ -42,7 +40,6 @@ def save_codigos(c):
         pickle.dump(c, f)
 
 CODIGOS = load_codigos()
-USED_CODES = []
 
 # ================== DOWNLOAD ==================
 user_downloads = {}
@@ -136,9 +133,7 @@ async def ativar(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    if user_id in OWNERS:
-        pass
-    else:
+    if user_id not in OWNERS:
         today = str(date.today())
         if user_id not in user_downloads:
             user_downloads[user_id] = {"date": today, "count": 0}
